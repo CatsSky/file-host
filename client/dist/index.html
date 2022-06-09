@@ -121,16 +121,115 @@
 				paginate();
 			});
 		});
+
+
+		function addEntry() {
+			const fileList = document.getElementById('file-list');
+			const files = fetch('/files/all').then(res => res.json()).then(files => {
+				files.forEach(file => {
+					const row = document.createElement('tr', 'paginate-show');
+					const filename = document.createElement('td');
+					const date = document.createElement('td');
+					const size = document.createElement('td');
+					const trash = document.createElement('td');
+
+					filename.innerHTML = `<a href="/files/${file.filename}" target="_blank">${file.originalname}</a>`;
+					date.innerHTML = file.timestamp.toLocaleString();
+
+					if (file.size > 1024 * 1024) {
+						size.innerHTML = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
+					} else if (file.size > 1024) {
+						size.innerHTML = `${(file.size / 1024).toFixed(2)} KB`;
+					} else {
+						size.innerHTML = `${file.size} bytes`;
+					}
+					
+					// <span class="clickable filter" title="Toggle Search">
+					// 	<i class="fa fa-search menu-icon">&nbsp;</i>
+					// </span>
+					
+					const trashSpan = document.createElement('span');
+					trashSpan.classList.add('clickable');
+					trashSpan.innerHTML = '<i class="fa fa-trash menu-icon">&nbsp;</i>';
+					trashSpan.addEventListener('click', () => {
+						fetch(`/files/${file.filename}`, {
+							method: 'DELETE'
+						}).then(res => res.json()).then(res => {
+							if (res.success) {
+								row.remove();
+							}
+						});
+					});
+					trash.appendChild(trashSpan);
+					// trash.innerHTML = `<span class="clickable trash" title="Delete">
+					// 	<i class="fa fa-trash menu-icon">&nbsp;</i></span>`
+
+					// trash.innerHTML = `<a href="/files/delete/${file.filename}" class="btn btn-trash btn-xs">Delete</a>`;
+
+					row.appendChild(filename);
+					row.appendChild(date);
+					row.appendChild(size);
+					row.appendChild(trash);
+
+					fileList.appendChild(row);
+				});
+			});
+		}
 	</script>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
 </head>
 
 <body>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+	
+
+
+	
 	<div id="wb_LayoutGrid1">
 		<div id="LayoutGrid1">
 			<div class="row">
 				<div class="col-1">
 				</div>
 				<div class="col-2">
+					<div class="mb-3">
+						<input class="form-control" type="file" id="file-uploader" data-target="file-uploader" accept=".pdf,.txt"/>
+						<button type="submit" id="file-upload-button" class="btn btn-primary mb-3">Upload</button>
+					</div>
+
+					<script>
+						let form = new FormData();
+						const fileUploader = document.querySelector('#file-uploader');
+
+						fileUploader.addEventListener('change', (e) => {
+							// console.log(e.target.files[0]); // get file object
+							form.set('file', e.target.files[0]); // add file to form
+						});
+					
+						const fileUploadButton = document.querySelector('#file-upload-button');
+
+						fileUploadButton.addEventListener('click', (e) => {
+							fetch('/files/upload', {
+								method: 'POST',
+								body: form
+							})
+							.then(res => res.json())
+							.then(data => {
+								console.log(data);
+								if (data.success) {
+									alert('File uploaded successfully');
+									const fileList = document.getElementById('file-list');
+									fileList.innerHTML = '';
+									addEntry();
+								}
+								else {
+									alert('File upload failed');
+								}
+							})
+							.catch(err => {
+								console.log(err);
+							});
+						});
+					</script>
 					<div id="wb_Extension1" style="display:inline-block;width:100%;z-index:0;">
 						<div class="panel">
 							<div class="panel-heading">
@@ -181,56 +280,7 @@
 	</tr> -->
 
 	<script>
-		const fileList = document.getElementById('file-list');
-		const files = fetch('/files/all').then(res => res.json()).then(files => {
-			files.forEach(file => {
-				const row = document.createElement('tr', 'paginate-show');
-				const filename = document.createElement('td');
-				const date = document.createElement('td');
-				const size = document.createElement('td');
-				const trash = document.createElement('td');
-
-				filename.innerHTML = `<a href="/files/${file.filename}" target="_blank">${file.originalname}</a>`;
-				date.innerHTML = file.timestamp.toLocaleString();
-
-				if (file.size > 1024 * 1024) {
-					size.innerHTML = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
-				} else if (file.size > 1024) {
-					size.innerHTML = `${(file.size / 1024).toFixed(2)} KB`;
-				} else {
-					size.innerHTML = `${file.size} bytes`;
-				}
-				
-				// <span class="clickable filter" title="Toggle Search">
-				// 	<i class="fa fa-search menu-icon">&nbsp;</i>
-				// </span>
-				
-				const trashSpan = document.createElement('span');
-				trashSpan.classList.add('clickable');
-				trashSpan.innerHTML = '<i class="fa fa-trash menu-icon">&nbsp;</i>';
-				trashSpan.addEventListener('click', () => {
-					fetch(`/files/${file.filename}`, {
-						method: 'DELETE'
-					}).then(res => res.json()).then(res => {
-						if (res.success) {
-							row.remove();
-						}
-					});
-				});
-				trash.appendChild(trashSpan);
-				// trash.innerHTML = `<span class="clickable trash" title="Delete">
-				// 	<i class="fa fa-trash menu-icon">&nbsp;</i></span>`
-
-				// trash.innerHTML = `<a href="/files/delete/${file.filename}" class="btn btn-trash btn-xs">Delete</a>`;
-
-				row.appendChild(filename);
-				row.appendChild(date);
-				row.appendChild(size);
-				row.appendChild(trash);
-
-				fileList.appendChild(row);
-			});
-		});
+		addEntry();
 	</script>
 
 </body>
