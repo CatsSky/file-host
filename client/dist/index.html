@@ -12,13 +12,13 @@
 
 <body>
 
-    <input type="file" id="file-uploader" data-target="file-uploader"/>
+    <input type="file" id="file-uploader" data-target="file-uploader" accept=".pdf,.txt"/>
     <script>
         let form = new FormData();
         const fileUploader = document.querySelector('#file-uploader');
 
         fileUploader.addEventListener('change', (e) => {
-            console.log(e.target.files[0]); // get file object
+            // console.log(e.target.files[0]); // get file object
             form.set('file', e.target.files[0]); // add file to form
         });
     </script>
@@ -28,7 +28,7 @@
         const fileUploadButton = document.querySelector('#file-upload-button');
 
         fileUploadButton.addEventListener('click', (e) => {
-            fetch('/upload', {
+            fetch('/files/upload', {
                 method: 'POST',
                 body: form
             })
