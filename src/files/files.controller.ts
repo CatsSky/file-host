@@ -1,37 +1,39 @@
-import { Controller, Delete, Get, Param, Post, Render, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Post, Logger, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { Express } from 'express'
 import { FileInterceptor } from '@nestjs/platform-express/multer';
 
 @Controller('files')
 export class FilesController {
-    constructor(private readonly filesService: FilesService) {}
-    
+    constructor(private readonly filesService: FilesService) { }
+
+    readonly logger = new Logger(FilesController.name);
+
     @Get('all')
     async getAll() {
         return this.filesService.findAll();
     }
-    
+
     @Post('upload')
-	@UseInterceptors(FileInterceptor('file'))
-	async uploadFile(@UploadedFile() file: Express.Multer.File) {
-        if (file == null) 
+    @UseInterceptors(FileInterceptor('file'))
+    async uploadFile(@UploadedFile() file: Express.Multer.File) {
+        if (file == null)
             return {
                 success: false,
                 message: 'No file uploaded'
             }
 
-		console.log(file);
+        this.logger.debug(file);
 
         await this.filesService.create(file);
 
-		return {
+        return {
             success: true,
-			originalname: file.originalname,
-			filename: file.filename,
-		};    
-	}    
-    
+            originalname: file.originalname,
+            filename: file.filename,
+        };
+    }
+
     @Get(':name')
     async getOne(@Param('name') name: string) {
         return this.filesService.findOneByFilename(name);
