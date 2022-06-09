@@ -1,4 +1,3 @@
-
 import { Model } from 'mongoose';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -14,7 +13,7 @@ export class FilesService {
 	}
 
 	readonly logger = new Logger(FilesService.name);
-	readonly fileExpireTime: number = 5 * 60 * 1000;
+	readonly fileExpireTime: number = 50 * 60 * 1000;
 
 	@Interval(30 * 1000)
 	async handleInterval() {
@@ -38,6 +37,13 @@ export class FilesService {
 
 	async findAll(): Promise<File[]> {
 		return this.fileModel.find().exec();
+	}
+
+	async getFile(name: string): Promise<Buffer> {
+		const filePath = path.join('./storage', name);
+		const file = fs.readFileSync(filePath);
+
+		return file;
 	}
 
 	async removeExpired(): Promise<void> {
