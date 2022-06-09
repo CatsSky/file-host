@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Page Title</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+    <script src="https://unpkg.com/petite-vue" defer init></script>
+    
+</head>
+
+<body>
+
+    <input type="file" id="file-uploader" data-target="file-uploader"/>
+    <script>
+        let form = new FormData();
+        const fileUploader = document.querySelector('#file-uploader');
+
+        fileUploader.addEventListener('change', (e) => {
+            console.log(e.target.files[0]); // get file object
+            form.set('file', e.target.files[0]); // add file to form
+        });
+    </script>
+    <br/>
+    <button id="file-upload-button"> Upload </button>
+    <script>
+        const fileUploadButton = document.querySelector('#file-upload-button');
+
+        fileUploadButton.addEventListener('click', (e) => {
+            fetch('/upload', {
+                method: 'POST',
+                body: form
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(err => {
+                console.log(err);
+            });
+        });
+    </script>
+
+
+</body>
+</html>
