@@ -13,7 +13,7 @@ export class FilesService {
 	}
 
 	readonly logger = new Logger(FilesService.name);
-	readonly fileExpireTime: number = 50 * 60 * 1000;
+	readonly fileExpireTime: number = 5 * 60 * 1000;
 
 	@Interval(30 * 1000)
 	async handleInterval() {
