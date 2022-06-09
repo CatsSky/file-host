@@ -59,6 +59,9 @@ export class FilesController {
     async remove(@Param('name') name: string) {
         console.log("removing " + name);
         this.filesService.removeOne(name);
+        return {
+            success: true,
+        }
     }
 
 }
