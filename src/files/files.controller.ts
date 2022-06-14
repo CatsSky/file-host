@@ -25,6 +25,10 @@ export class FilesController {
 
         this.logger.debug(file);
 
+        file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');
+        
+        this.logger.debug(file.originalname);
+
         await this.filesService.create(file);
 
         return {
