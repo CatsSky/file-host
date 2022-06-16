@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Param, Post, Logger, UploadedFile, UseInterceptors, Res, Response, StreamableFile } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Post, Logger, UploadedFile, UseInterceptors, Response } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { Express, Response as ExpressResponse } from 'express'
 import { FileInterceptor } from '@nestjs/platform-express/multer';
